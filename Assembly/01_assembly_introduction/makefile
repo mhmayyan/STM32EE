@@ -44,4 +44,4 @@ gdb-server:
 
 .PHONY: gdb
 gdb: example.elf
-	$(GDB) example.elf -ex "target extended-remote :4242" -ex "load"
+	$(GDB) -tui example.elf -ex "target extended-remote :4242" -ex "load"

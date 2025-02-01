@@ -1,0 +1,70 @@
+
+
+Create a new STM32 project and select the desired MCU part number.
+Clean all piouts and generate code
+Delete the folder "Inc"
+Delete the folder "STM32L4xx_HAL_Driver"
+Delete the files "stm32l4xx_it.c" and "stm32l4xx_hal_msp.c"
+Delete the whole function "void SystemClock_Config(void)"
+Delete the two calls to functions "HAL_Init();" and "SystemClock_Config();" inside the main function
+Delete the file "stm32l4xx.h" inside the folder 
+Delete the file "system_stm32l4xx.c"
+
+Copy the following code into the main.c file before the main() function
+void SystemInit(void)
+{
+#if defined(USER_VECT_TAB_ADDRESS)
+  /* Configure the Vector Table location -------------------------------------*/
+  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;
+#endif
+
+  /* FPU settings ------------------------------------------------------------*/
+#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+  SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
+#endif
+}
+
+
+
+Replace the included header #include "main.h" with #include "stm32l4xx.h"
+
+Copy the following code inside the main function
+
+  /* USER CODE BEGIN 2 */
+	RCC->AHB2ENR |= 5; // enable GPIOC and GPIOA
+	GPIOC->MODER &= ~0xFF; // GPIOC 0-3 output
+	GPIOC->MODER |= 0x55; // GPIOC 0-3 output
+	GPIOA->MODER &= ~0xFFFF; // GPIOA 0-7 output
+	GPIOA->MODER |= 0x5555; // GPIOA 0-3 output
+	for(volatile uint32_t rpt=0; rpt<0x7FFFF; rpt++);
+	GPIOC->ODR |= 0xF; // turn off all segments
+	GPIOA->ODR |= 0xFF; // turn off all segments
+	const uint8_t digits[] = {0x3f, 0x30, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
+	uint32_t indx=0;
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+	  indx=0;
+	for (uint32_t loop = 0; loop < 0xFFF; ++loop) {
+		GPIOC->ODR |= 0xF; // turn off all segments
+		GPIOC->ODR &= ~(1<<(3-indx)); // turn on only one digit
+		GPIOA->ODR |= 0xFF; // turn off all segments
+		GPIOA->ODR &= ~digits[indx]; // display digit
+		indx = indx==4 ? 0 : indx+1;
+		for(volatile uint32_t rpt=0; rpt<0xFF; rpt++);
+	}
+	indx=0;
+	for (uint32_t loop = 0; loop < 0xFFF; ++loop) {
+			GPIOC->ODR |= 0xF; // turn off all segments
+			GPIOC->ODR &= ~(1<<(3-indx)); // turn on only one digit
+			GPIOA->ODR |= 0xFF; // turn off all segments
+			GPIOA->ODR &= ~digits[indx+4]; // display digit
+			indx = indx==4 ? 0 : indx+1;
+			for(volatile uint32_t rpt=0; rpt<0xFF; rpt++);
+		}
+    /* USER CODE BEGIN 3 */
+  }

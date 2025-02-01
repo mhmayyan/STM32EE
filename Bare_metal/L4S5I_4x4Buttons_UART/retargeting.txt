@@ -1,0 +1,22 @@
+How to use printf()
+
+create a new project
+enable UART2 and generate code
+
+
+to retarget the STDIN, STDOUT and STDERR standard streams to the STM32 USART2.
+
+The simplest and effective solution is to redefine the needed system calls (_write(), _read(), _isatty(), _close(), _fstat()) to retarget the STDIN, STDOUT and STDERR standard streams to the STM32 USART2. This can be easily done in the following way
+
+Copy the file "retarget.h" into the "Inc" folder, and the file "retarget.c" into the "Src" folder.
+
+include the header files "retarget.h" and "stdio.h" into the main.c file
+
+add the line "RetargetInit(&huart2);" into you main() function after initializing UART2, i.e., MX_USART2_UART_Init();.
+
+comment out the rewritten system calls
+
+To be able to use float numbers in the printf function, go to Project>Properties>C/C++ Build>Settings>MCU/MPU Settings and enable "Use float with printf from newlib-nano (-u _printf_float)
+
+
+

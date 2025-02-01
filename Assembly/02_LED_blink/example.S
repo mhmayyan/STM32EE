@@ -24,11 +24,11 @@ GPIOA_MODER_MODER05_MASK   = 3 << 10
 GPIOA_MODER_MODER05_OUTPUT = 1 << 10
 
 @ Bit definitions for GPIO_BSSR register
-GPIOA_BSSR_BR05 = 1 << 21
-GPIOA_BSSR_BS05 = 1 << 5
+GPIOA_BSSR_BR05 = 1 << 21	@ to reset the bit
+GPIOA_BSSR_BS05 = 1 << 5	@ to set the bit
 
 @ Bit definitions for RCC_AHB2ENR register
-RCC_AHB2ENR_GPIOAEN = 1 << 0
+RCC_AHB2ENR_GPIOAEN = 1
 
 @ LED blink delay
 LED_BLINK_DELAY = 1000000
@@ -37,8 +37,8 @@ LED_BLINK_DELAY = 1000000
 @ Vector table
 
 .word 0x200A0000    @ Top of stack (end od RAM)
-.word _start         @ Reset handler
-.space 0x400-4*2        @fill al vector table with zeros
+.word _start        @ Reset handler
+.space 0x400-4*2    @fill al vector table with zeros
 
 @ -----------------------------------------------------------------------------
 @ Program start
@@ -46,7 +46,7 @@ LED_BLINK_DELAY = 1000000
 .type start, "function"
 .global _start
 _start:
-    @ Enable GPIOC
+    @ Enable GPIOA
     ldr r0,=RCC_AHB2ENR
     ldr r2, [r0]
     ldr r1, =RCC_AHB2ENR_GPIOAEN
